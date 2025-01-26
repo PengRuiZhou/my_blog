@@ -10,11 +10,43 @@
   <div class="row">
     <!-- 标题及作者 -->
     <div class="col-12 mt-4 mb-4">{{article.title}}</div>
-    <div class="col-12 alert alert-success">作者: {{article.author}}</div>
+    <div class="col-12 alert alert-success">作者: {{article.author}}
+      . <a href="#" onclick="confirm_safe_delete()">删除文章</a>
+      <!-- 增加隐藏表单，提交csrf token -->
+      <form 
+        style="display: none;"
+        id="safe_delete"
+        action="{% url 'article:article_delete' article.id %}"
+        method="POST">
+        {% csrf_token %}
+        <button type="submit">发送</button>
+      </form>
+
+    </div>
     <!-- 文章正文 -->
     <div class="col-12">
-      <p>{{article.body}}</p>
+      <!-- Django出于安全的考虑，会将输出的HTML代码进行转义，
+       这使得article.body中渲染的HTML文本无法正常显示。管道符|是Django中过滤器的写法，
+       而|safe就类似给article.body贴了一个标签，表示这一段字符不需要进行转义了。 -->
+      <p>{{article.body|safe}}</p>
     </div>
+
+    
   </div>
 </div>
+
+<script>
+  function confirm_safe_delete(){
+    layer.open({
+      // 调用layer 弹窗组件
+      title: "确认删除",
+      content: "确定删除该文章么？",
+      yes: function(index, layero){
+        // 指定前往隐藏表单的button
+        $('form#safe_delete button').click();
+        layer.close(index);
+      }
+    });
+  }
+</script>
 {%endblock content %}
